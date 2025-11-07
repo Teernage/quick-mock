@@ -270,3 +270,60 @@ button {
 ::-webkit-scrollbar-thumb:hover {
   background: #b1b1b6;
 }
+
+
+
+select {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+  background: #fafafa;
+  color: #1d1d1f;
+  cursor: pointer;
+}
+
+select:focus {
+  outline: none;
+  border-color: #6b7cff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(107, 124, 255, 0.08);
+}
+
+.method-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-right: 6px;
+  text-transform: uppercase;
+}
+
+.method-all {
+  background: #8e8e93;
+  color: white;
+}
+
+.method-get {
+  background: #34c759;
+  color: white;
+}
+
+.method-post {
+  background: #007aff;
+  color: white;
+}
+
+.method-put {
+  background: #ff9500;
+  color: white;
+}
+
+.method-delete {
+  background: #ff3b30;
+  color: white;
+}

@@ -4,7 +4,6 @@ script.src = chrome.runtime.getURL('injected.js');
 
 async function getMockRulesSafely() {
   try {
-    // 当扩展被重载或上下文失效时，chrome.runtime.id 不存在
     if (!chrome?.runtime?.id || !chrome?.storage?.local) return [];
     const result = await chrome.storage.local.get('mockRules');
     if (chrome.runtime.lastError) {
@@ -24,14 +23,16 @@ window.addEventListener('message', async (event) => {
   const data = event?.data;
   if (!data || data.type !== 'MOCK_REQUEST') return;
 
-  const { url, id } = data;
+  const { url, method, id } = data;
 
   const rules = await getMockRulesSafely();
 
   for (let rule of rules) {
     try {
       const pattern = new RegExp(rule.url);
-      if (pattern.test(url)) {
+      const methodMatch = !rule.method || rule.method === 'ALL' || rule.method === method;
+
+      if (pattern.test(url) && methodMatch) {
         window.postMessage(
           {
             type: 'MOCK_RESPONSE',
@@ -46,16 +47,9 @@ window.addEventListener('message', async (event) => {
         return;
       }
     } catch (e) {
-      continue;
+      console.warn('[Mock] 规则处理失败:', e);
     }
   }
 
-  window.postMessage(
-    {
-      type: 'MOCK_RESPONSE',
-      id,
-      shouldMock: false,
-    },
-    '*'
-  );
+  window.postMessage({ type: 'MOCK_RESPONSE', id, shouldMock: false }, '*');
 });

@@ -7,6 +7,7 @@ chrome.storage.local.get(['mockRules'], (result) => {
 
 document.getElementById('add').onclick = () => {
   const url = document.getElementById('url').value.trim();
+  const method = document.getElementById('method').value;
   const data = document.getElementById('data').value.trim();
 
   if (!url || !data) {
@@ -16,10 +17,11 @@ document.getElementById('add').onclick = () => {
 
   try {
     JSON.parse(data);
-    rules.push({ url, data });
+    rules.push({ url, method, data });
     chrome.storage.local.set({ mockRules: rules });
     document.getElementById('url').value = '';
     document.getElementById('data').value = '';
+    document.getElementById('method').value = 'ALL';
     renderRules();
     showToast('✓ 添加成功');
   } catch (e) {
@@ -60,7 +62,10 @@ function renderRules() {
       (rule, i) => `
     <div class="rule-item">
       <div class="rule-header">
-        <div class="rule-url">${escapeHtml(rule.url)}</div>
+        <div class="rule-url">
+          <span class="method-badge method-${(rule.method || 'ALL').toLowerCase()}">${rule.method || 'ALL'}</span>
+          ${escapeHtml(rule.url)}
+        </div>
         <button class="btn-delete" data-index="${i}">删除</button>
       </div>
       <div class="rule-data">${escapeHtml(rule.data)}</div>
@@ -69,7 +74,6 @@ function renderRules() {
     )
     .join('');
 
-  // 事件委托绑定删除按钮（MV3 不允许内联事件）
   container.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', () => {
       const index = Number(btn.getAttribute('data-index'));

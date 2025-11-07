@@ -21,11 +21,21 @@
       if (input && typeof input === 'object' && 'url' in input) {
         return input.url;
       }
-    } catch (_) {}
+    } catch (_) { }
     return String(input);
   }
 
-  function sendMockRequest(url) {
+  // 提取请求方法
+  function getMethod(url, options) {
+    // 如果 url 是 Request 对象，直接从对象中获取 method
+    if (url && typeof url === 'object' && 'method' in url) {
+      return url.method.toUpperCase();
+    }
+    // 否则从 options 中获取
+    return (options?.method || 'GET').toUpperCase();
+  }
+
+  function sendMockRequest(url, method) {
     return new Promise((resolve) => {
       const id = requestId++;
       pendingRequests.set(id, resolve);
@@ -37,6 +47,7 @@
           {
             type: 'MOCK_REQUEST',
             url: safeUrl,
+            method,
             id,
           },
           '*'
@@ -59,11 +70,12 @@
   }
 
   window.fetch = async function (url, options = {}) {
-    const response = await sendMockRequest(url);
+    const method = getMethod(url, options); // 使用获取方法
+    const response = await sendMockRequest(url, method);
 
     if (response.shouldMock) {
       const safeUrl = normalizeUrl(url);
-      console.log('[Mock] 拦截请求:', safeUrl, response.mockData);
+      console.log('[Mock] 拦截请求:', method, safeUrl, response.mockData);
       return new Response(JSON.stringify(response.mockData), {
         status: response.status,
         headers: response.headers,
@@ -72,6 +84,4 @@
 
     return originalFetch.call(this, url, options);
   };
-
-  console.log('[Mock] 已注入 fetch 拦截器');
 })();
