@@ -1,0 +1,272 @@
+/* ============ popup.css ============ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 380px;
+  min-height: 480px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+  background: #fafafa;
+  color: #1d1d1f;
+  font-size: 13px;
+}
+
+.header {
+  padding: 20px 18px 18px;
+  background: transparent;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  color: white;
+  background: linear-gradient(135deg, #6b7cff 0%, #8b9aff 100%);
+  display: inline-block;
+  padding: 2px 11px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.header p {
+  font-size: 12px;
+  color: #8e8e93;
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.container {
+  padding: 0 14px 14px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  border: 1px solid #e8e8e8;
+}
+
+.input-group {
+  margin-bottom: 10px;
+}
+
+.input-group:last-of-type {
+  margin-bottom: 12px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8e8e93;
+  margin-bottom: 5px;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+  background: #fafafa;
+  color: #1d1d1f;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #6b7cff;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(107, 124, 255, 0.08);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #c7c7cc;
+}
+
+textarea {
+  height: 70px;
+  resize: vertical;
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  flex: 1;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #6b7cff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #5a6bee;
+  transform: translateY(-0.5px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  background: #4e5fdd;
+}
+
+.btn-secondary {
+  background: #f2f2f7;
+  color: #8e8e93;
+}
+
+.btn-secondary:hover {
+  background: #e5e5ea;
+  color: #636366;
+}
+
+.btn-secondary:active {
+  background: #d8d8dd;
+}
+
+.rules-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 10px;
+  padding: 0 2px;
+}
+
+.rules-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.rules-count {
+  font-size: 11px;
+  color: #8e8e93;
+  background: white;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  font-weight: 500;
+}
+
+.rule-item {
+  background: white;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid #e8e8e8;
+  transition: all 0.15s;
+}
+
+.rule-item:hover {
+  border-color: #d1d1d6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.rule-url {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7cff;
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  flex: 1;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.btn-delete {
+  padding: 3px 8px;
+  background: #ff3b30;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.btn-delete:hover {
+  background: #ff2d20;
+}
+
+.btn-delete:active {
+  transform: scale(0.96);
+}
+
+.rule-data {
+  font-size: 11px;
+  color: #8e8e93;
+  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  background: #f9f9f9;
+  padding: 6px 8px;
+  border-radius: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 32px 20px;
+  color: #c7c7cc;
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: #8e8e93;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d1d6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b1b1b6;
+}

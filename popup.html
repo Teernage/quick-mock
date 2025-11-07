@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>API Mock</h1>
+      <p>轻量级接口模拟工具</p>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <div class="input-group">
+          <label>URL 匹配规则</label>
+          <input id="url" placeholder="/api/user 或正则表达式" />
+        </div>
+
+        <div class="input-group">
+          <label>Mock 数据 (JSON)</label>
+          <textarea
+            id="data"
+            placeholder='{"code": 0, "data": "mock response"}'
+          ></textarea>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-primary" id="add">添加规则</button>
+          <button class="btn-secondary" id="clear">清空全部</button>
+        </div>
+      </div>
+
+      <div class="rules-header">
+        <h2>Mock 规则</h2>
+        <span class="rules-count" id="count">0 条</span>
+      </div>
+
+      <div id="rules"></div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
