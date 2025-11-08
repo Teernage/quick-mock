@@ -18,10 +18,5 @@
       "resources": ["injected.js"],
       "matches": ["<all_urls>"]
     }
-  ],
-  "icons": {
-    "16": "icon.svg",
-    "48": "icon.svg",
-    "128": "icon.svg"
-  }
+  ]
 }

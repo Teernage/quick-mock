@@ -1,13 +1,50 @@
 let rules = [];
 
-chrome.storage.local.get(['mockRules'], (result) => {
-  rules = result.mockRules || [];
-  renderRules();
+const openTabBtn = document.getElementById('openTab');
+
+// 在新标签页中打开
+openTabBtn.addEventListener('click', function () {
+  window.open(window.location.href);
 });
+
+// 恢复输入框内容
+chrome.storage.local.get(['mockRules', 'draftInput'], (result) => {
+  rules = result.mockRules || [];
+  rules = rules.map((rule) => ({
+    ...rule,
+    matchMode: rule.matchMode || 'contains',
+  }));
+  renderRules();
+
+  // 恢复草稿
+  const draft = result.draftInput || {};
+  if (draft.url) document.getElementById('url').value = draft.url;
+  if (draft.method) document.getElementById('method').value = draft.method;
+  if (draft.matchMode)
+    document.getElementById('matchMode').value = draft.matchMode;
+  if (draft.data) document.getElementById('data').value = draft.data;
+});
+
+// 监听输入框变化，自动保存草稿
+function saveDraft() {
+  const draft = {
+    url: document.getElementById('url').value.trim(),
+    method: document.getElementById('method').value,
+    matchMode: document.getElementById('matchMode').value,
+    data: document.getElementById('data').value.trim(),
+  };
+  chrome.storage.local.set({ draftInput: draft });
+}
+
+document.getElementById('url').addEventListener('input', saveDraft);
+document.getElementById('method').addEventListener('change', saveDraft);
+document.getElementById('matchMode').addEventListener('change', saveDraft);
+document.getElementById('data').addEventListener('input', saveDraft);
 
 document.getElementById('add').onclick = () => {
   const url = document.getElementById('url').value.trim();
   const method = document.getElementById('method').value;
+  const matchMode = document.getElementById('matchMode').value;
   const data = document.getElementById('data').value.trim();
 
   if (!url || !data) {
@@ -17,11 +54,16 @@ document.getElementById('add').onclick = () => {
 
   try {
     JSON.parse(data);
-    rules.push({ url, method, data });
+    rules.push({ url, method, matchMode, data });
     chrome.storage.local.set({ mockRules: rules });
+
+    // 清空输入框和存储
     document.getElementById('url').value = '';
     document.getElementById('data').value = '';
     document.getElementById('method').value = 'ALL';
+    document.getElementById('matchMode').value = 'contains';
+    chrome.storage.local.remove('draftInput');
+
     renderRules();
     showToast('✓ 添加成功');
   } catch (e) {
@@ -57,14 +99,24 @@ function renderRules() {
     return;
   }
 
+  const matchModeText = {
+    contains: '包含',
+    exact: '精确',
+  };
+
   container.innerHTML = rules
     .map(
       (rule, i) => `
     <div class="rule-item">
       <div class="rule-header">
         <div class="rule-url">
-          <span class="method-badge method-${(rule.method || 'ALL').toLowerCase()}">${rule.method || 'ALL'}</span>
-          ${escapeHtml(rule.url)}
+          <span class="method-badge method-${(
+            rule.method || 'ALL'
+          ).toLowerCase()}">${rule.method || 'ALL'}</span>
+          <span class="match-mode-badge match-mode-${
+            rule.matchMode || 'contains'
+          }">${matchModeText[rule.matchMode] || '包含'}</span>
+          <span>${escapeHtml(rule.url)}</span>
         </div>
         <button class="btn-delete" data-index="${i}">删除</button>
       </div>

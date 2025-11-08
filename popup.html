@@ -6,21 +6,30 @@
   </head>
   <body>
     <div class="header">
-      <h1>API Mock</h1>
-      <p>轻量级接口模拟工具</p>
+      <div>
+        <h1>API Mock</h1>
+        <p>轻量级接口模拟工具</p>
+      </div>
+      <button class="btn-open-tab" id="openTab">在新标签页中打开</button>
     </div>
 
     <div class="container">
       <div class="card">
         <div class="input-group">
           <label>URL 匹配规则</label>
-          <input id="url" placeholder="/api/user 或正则表达式" />
+          <div class="url-row">
+            <select id="matchMode" class="match-mode-select">
+              <option value="contains">包含</option>
+              <option value="exact">完整匹配</option>
+            </select>
+            <input id="url" placeholder="输入 URL 或关键词" />
+          </div>
         </div>
 
         <div class="input-group">
           <label>请求方法</label>
           <select id="method">
-            <option value="ALL">ALL (所有方法)</option>
+            <option value="ALL">ALL</option>
             <option value="GET">GET</option>
             <option value="POST">POST</option>
             <option value="PUT">PUT</option>
