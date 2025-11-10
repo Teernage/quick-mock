@@ -13,6 +13,7 @@ chrome.storage.local.get(['mockRules', 'draftInput'], (result) => {
   rules = rules.map((rule) => ({
     ...rule,
     matchMode: rule.matchMode || 'contains',
+    enabled: rule.enabled !== false, //  默认启用
   }));
   renderRules();
 
@@ -54,7 +55,8 @@ document.getElementById('add').onclick = () => {
 
   try {
     JSON.parse(data);
-    rules.push({ url, method, matchMode, data });
+    //  添加 enabled: true
+    rules.push({ url, method, matchMode, data, enabled: true });
     chrome.storage.local.set({ mockRules: rules });
 
     // 清空输入框和存储
@@ -81,6 +83,15 @@ document.getElementById('clear').onclick = () => {
   }
 };
 
+//  添加开关规则函数
+window.toggleRule = (index) => {
+  rules[index].enabled = !rules[index].enabled;
+  chrome.storage.local.set({ mockRules: rules });
+  renderRules();
+  const status = rules[index].enabled ? '已启用' : '已禁用';
+  showToast(`✓ ${status}`);
+};
+
 function renderRules() {
   const container = document.getElementById('rules');
   const count = document.getElementById('count');
@@ -101,70 +112,98 @@ function renderRules() {
 
   const matchModeText = {
     contains: '包含',
-    exact: '精确',
+    exact: '完整',
   };
 
   container.innerHTML = rules
     .map(
       (rule, i) => `
-    <div class="rule-item">
+    <div class="rule-item ${rule.enabled === false ? 'disabled' : ''}">
       <div class="rule-header">
         <div class="rule-url">
-          <span class="method-badge method-${(
-            rule.method || 'ALL'
-          ).toLowerCase()}">${rule.method || 'ALL'}</span>
-          <span class="match-mode-badge match-mode-${
-            rule.matchMode || 'contains'
-          }">${matchModeText[rule.matchMode] || '包含'}</span>
+          <span class="method-badge method-${(rule.method || 'ALL').toLowerCase()}">${rule.method || 'ALL'}</span>
+          <span class="match-mode-badge match-mode-${rule.matchMode || 'contains'}">${matchModeText[rule.matchMode] || '包含'}</span>
           <span>${escapeHtml(rule.url)}</span>
         </div>
-        <button class="btn-delete" data-index="${i}">删除</button>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <div class="rule-toggle-wrapper">
+            <input 
+              type="checkbox" 
+              class="rule-toggle-checkbox" 
+              id="toggle-${i}" 
+              data-index="${i}"
+              ${rule.enabled !== false ? 'checked' : ''}
+            >
+            <label for="toggle-${i}" class="toggleSwitch"></label>
+          </div>
+          <button class="btn-delete" data-index="${i}">删除</button>
+        </div>
       </div>
-      <div class="rule-data">${escapeHtml(rule.data)}</div>
+      <div class="rule-data-wrapper">
+        <div class="rule-data" data-index="${i}">${escapeHtml(rule.data)}</div>
+        ${rule.data.length > 100 ? `
+          <button class="btn-toggle-data" data-index="${i}">
+            <span class="toggle-text">展开</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        ` : ''}
+      </div>
     </div>
   `
     )
     .join('');
 
+  // 开关按钮事件（替换原来的 .btn-toggle 事件）
+  container.querySelectorAll('.rule-toggle-checkbox').forEach((checkbox) => {
+    checkbox.addEventListener('change', (e) => {
+      const index = Number(e.target.getAttribute('data-index'));
+      if (!Number.isNaN(index)) {
+        window.toggleRule(index);
+      }
+    });
+  });
+
+  // 删除按钮事件
   container.querySelectorAll('.btn-delete').forEach((btn) => {
     btn.addEventListener('click', () => {
       const index = Number(btn.getAttribute('data-index'));
       if (!Number.isNaN(index)) {
-        window.deleteRule(index);
+        rules.splice(index, 1);
+        chrome.storage.local.set({ mockRules: rules });
+        renderRules();
+        showToast('✓ 已删除');
       }
+    });
+  });
+
+  // 折叠展开按钮事件
+  container.querySelectorAll('.btn-toggle-data').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const index = Number(btn.getAttribute('data-index'));
+      const dataElement = container.querySelector(`.rule-data[data-index="${index}"]`);
+      const isExpanded = dataElement.classList.contains('expanded');
+
+      dataElement.classList.toggle('expanded');
+      btn.classList.toggle('expanded');
+      btn.querySelector('.toggle-text').textContent = isExpanded ? '展开' : '收起';
     });
   });
 }
 
-window.deleteRule = (index) => {
-  rules.splice(index, 1);
-  chrome.storage.local.set({ mockRules: rules });
-  renderRules();
-  showToast('✓ 已删除');
-};
 
-function showToast(message) {
-  const toast = document.createElement('div');
-  toast.textContent = message;
-  toast.style.cssText = `
-    position: fixed;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.75);
-    color: white;
-    padding: 6px 14px;
-    border-radius: 16px;
-    font-size: 12px;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
-  `;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 1800);
-}
 
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 1500);
 }

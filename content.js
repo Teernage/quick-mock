@@ -55,32 +55,37 @@ function matchUrl(url, pattern, mode) {
 
 /**
  * 监听来自 content-script 的消息。
- * 若消息类型为 MOCK_REQUEST，根据 mock 规则匹配并返回模拟数据。
+ * 若消息类型为 MOCK_REQUEST，则根据 URL 和 method 匹配规则，返回对应的 mock 数据。
  */
 window.addEventListener('message', async (event) => {
-  if (event.source !== window) return;
-  const data = event?.data;
-  if (!data || data.type !== 'MOCK_REQUEST') return;
+  if (event.data.type !== 'MOCK_REQUEST') return;
 
-  const { url, method, id } = data;
-
-  // 读取 mock 规则
+  const { url, method, id } = event.data;
   const rules = await getMockRulesSafely();
 
   for (let rule of rules) {
     try {
+      // 添加启用状态检查
+      if (rule.enabled === false) continue;
+
       const matchMode = rule.matchMode || 'contains';
       const urlMatch = matchUrl(url, rule.url, matchMode);
-      const methodMatch =
-        !rule.method || rule.method === 'ALL' || rule.method === method;
+      const methodMatch = rule.method === 'ALL' || rule.method === method;
 
       if (urlMatch && methodMatch) {
+        let mockData = rule.data;
+        try {
+          mockData = JSON.parse(rule.data);
+        } catch (e) {
+          console.warn('[Mock] JSON 解析失败，使用原始字符串');
+        }
+
         window.postMessage(
           {
             type: 'MOCK_RESPONSE',
             id,
             shouldMock: true,
-            mockData: JSON.parse(rule.data),
+            mockData,
             status: 200,
             headers: { 'Content-Type': 'application/json' },
           },
@@ -90,6 +95,7 @@ window.addEventListener('message', async (event) => {
       }
     } catch (e) {
       console.warn('[Mock] 规则处理失败:', e);
+      continue;
     }
   }
 
