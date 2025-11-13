@@ -35,7 +35,7 @@
       if (input && typeof input === 'object' && 'url' in input) {
         return input.url;
       }
-    } catch (_) {}
+    } catch (_) { }
     return String(input);
   }
 
@@ -88,7 +88,7 @@
           resolve({ shouldMock: false });
           pendingRequests.delete(id);
         }
-      }, 100);
+      }, 1000);
     });
   }
 
@@ -125,33 +125,32 @@
     const response = await sendMockRequest(url, method);
 
     if (response.shouldMock) {
-      // 模拟 XHR 响应
       Object.defineProperty(this, 'readyState', { writable: true, value: 4 });
-      Object.defineProperty(this, 'status', {
-        writable: true,
-        value: response.status,
-      });
-      Object.defineProperty(this, 'statusText', {
-        writable: true,
-        value: 'OK',
-      });
-      Object.defineProperty(this, 'responseText', {
-        writable: true,
-        value: JSON.stringify(response.mockData),
-      });
+      Object.defineProperty(this, 'status', { writable: true, value: response.status });
+      Object.defineProperty(this, 'statusText', { writable: true, value: 'OK' });
+
+      const bodyStr =
+        typeof response.mockData === 'string'
+          ? response.mockData
+          : JSON.stringify(response.mockData);
+
+      Object.defineProperty(this, 'responseText', { writable: true, value: bodyStr });
       Object.defineProperty(this, 'response', {
         writable: true,
-        value: JSON.stringify(response.mockData),
+        value:
+          this.responseType === 'json'
+            ? (typeof response.mockData === 'string'
+              ? JSON.parse(response.mockData)
+              : response.mockData)
+            : bodyStr,
       });
 
-      // 触发事件
+      Object.defineProperty(this, 'responseURL', { writable: true, value: url });
+
       setTimeout(() => {
-        if (this.onreadystatechange) {
-          this.onreadystatechange();
-        }
-        if (this.onload) {
-          this.onload();
-        }
+        if (typeof this.onreadystatechange === 'function') this.onreadystatechange();
+        if (typeof this.onload === 'function') this.onload();
+        if (typeof this.onloadend === 'function') this.onloadend();
       }, 0);
 
       return;
