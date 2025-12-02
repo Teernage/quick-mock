@@ -73,19 +73,6 @@
     - `XHR` 填充 `readyState=4`、`status`、`responseText/response` 并触发 `onreadystatechange/onload/onloadend`
   - 若 1000ms 内无响应或未命中规则，则发送真实网络请求
 
-## 示例（本地演示）
-
-- 打开 `ceshi.html`（双击或在 Chrome 输入 `file:///e:/chrome-mock/quick-mock/ceshi.html`）
-- 页面会请求 `https://apis.tianapi.com/lunar/index?...`
-- 在扩展弹窗添加规则：
-  - 匹配模式：`包含`
-  - URL：`apis.tianapi.com/lunar/index`
-  - 方法：`GET`
-  - Mock 数据：
-    ```json
-    { "code": 0, "msg": "mocked", "result": { "date": "2025-12-02" } }
-    ```
-- 返回区域将显示 Mock 的 JSON，而非真实接口结果
 
 ## 注意事项
 
